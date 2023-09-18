@@ -1,34 +1,32 @@
+use rand::{thread_rng, Rng};
 use std::thread;
 use std::time::Duration;
 
 fn main() {
-    let hands = vec![vec!['a', 'b', 'c', 'd'], vec!['e', 'f', 'f', 'f']];
     let mut children = Vec::new();
-
-    for t in 0..hands.len() {
-        println!("spawning thread {t}");
-        let hands = hands.clone();
+    for hand in std::env::args().skip(1) {
         children.push(thread::spawn(move || {
-            let mut hand: Vec<char> = hands[t].to_vec().clone();
             let mut counter = 0;
+            let mut rng = thread_rng();
+            let handlen = hand.len();
             for _ in 0..50 {
-                (hand, counter) = keysmash(hand, counter);
+                let mut hand: Vec<char> = hand.chars().collect::<Vec<char>>();
+                counter = keysmash(hand.clone(), counter);
+                if counter == handlen {
+                    counter = 0;
+                    hand.swap(rng.gen_range(0..handlen), rng.gen_range(0..handlen));
+                }
                 thread::sleep(Duration::from_millis(1));
             }
         }));
     }
-
     for child in children {
         child.join().unwrap();
     }
 }
 
-fn keysmash(mut keysmash: Vec<char>, mut counter: usize) -> (Vec<char>, usize) {
+fn keysmash(keysmash: Vec<char>, counter: usize) -> usize {
     let s = keysmash[counter];
     print!("{s}");
-    counter = counter + 1;
-    if counter == keysmash.len() {
-        counter = 0;
-    }
-    (keysmash, counter)
+    counter + 1
 }
