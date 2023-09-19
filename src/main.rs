@@ -8,6 +8,7 @@ use std::time::Duration;
 #[clap(version, about)]
 #[command(name = "keysmashgen")]
 #[command(version = "0.1.0")]
+#[command(arg_required_else_help(true))]
 struct Args {
     /// number of keypresses per hand
     #[clap(short, long, default_value_t = 50)]
